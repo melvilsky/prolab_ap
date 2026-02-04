@@ -1,5 +1,6 @@
 # Сгенерированные конфиги hostapd
-hostapd/generated/*.conf
+# Закомментировано - теперь конфиги коммитятся в Git для упрощения
+# hostapd/generated/*.conf
 
 # Логи
 *.log
