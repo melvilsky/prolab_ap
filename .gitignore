@@ -1,0 +1,19 @@
+# Сгенерированные конфиги hostapd
+hostapd/generated/*.conf
+
+# Логи
+*.log
+
+# Временные файлы
+*.tmp
+*.swp
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
