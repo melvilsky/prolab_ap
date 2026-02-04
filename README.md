@@ -300,7 +300,8 @@ prolab_ap/
 │
 ├── hostapd/
 │   ├── common/radius.conf        ← Настройки RADIUS
-│   └── generated/                ← 14 готовых конфигов
+│   ├── generated/                ← 14 готовых конфигов
+│   └── custom/                   ← Ваши ручные конфиги (необязательно)
 │
 └── scripts/
     ├── ap-run.sh                 ← Запуск AP
@@ -309,6 +310,9 @@ prolab_ap/
     ├── check-system.sh           ← Проверка системы
     └── install-to-server.sh      ← Установка на сервер
 ```
+
+**Для ручных конфигов:** Создавайте свои `.conf` файлы в `hostapd/custom/`
+и запускайте через `./scripts/ap-run.sh hostapd/custom/my-config.conf`
 
 ---
 
