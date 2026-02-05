@@ -159,9 +159,9 @@ AP запущен!
 - `WPA3Ent-192b-P2` - Suite-B 192-bit, GCMP-256
 
 ### WPA2-WPA3-Enterprise mixed
-- `WPA2WPA3-CCMP-G256-P2` - WPA-EAP + Suite-B-192
-- `W2SHA-W3-CG256-P2` - SHA256 + Suite-B-192
-- `W2W3-ALL-CG256-P2` - все 3 AKM (WPA-EAP + SHA256 + Suite-B)
+- `W2E3E-CCMP-G256-P2` - WPA2-Ent + WPA3-Ent (Suite-B)
+- `W2E-SHA-W3E-CG256-P2` - WPA2-Ent SHA256 + WPA3-Ent
+- `W2E-SHA-W3E-ALL-CG256-P2` - все 3 AKM (WPA2-Ent + SHA256 + WPA3-Ent)
 
 ### WPA-Enterprise (legacy WPA1)
 - `WPA1Ent-TKIP-P0` - только WPA1, TKIP
@@ -175,6 +175,8 @@ AP запущен!
 **Расшифровка:**
 - `WPA2Ent` = WPA2-Enterprise
 - `WPA3Ent` = WPA3-Enterprise
+- `W2E` = WPA2-Enterprise
+- `W3E` = WPA3-Enterprise
 - `Mix` = Mixed AKM
 - `P0/P1/P2` = PMF off/optional/required
 - `G256` = GCMP-256

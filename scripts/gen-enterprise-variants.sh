@@ -241,7 +241,7 @@ B
 )
 
 # 19) WPA2/WPA3-Enterprise mixed (WPA-EAP + Suite-B-192), PMF required
-V19_NAME="WPA2WPA3-CCMP-G256-P2"
+V19_NAME="W2E3E-CCMP-G256-P2"
 V19_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP WPA-EAP-SUITE-B-192
@@ -251,7 +251,7 @@ B
 )
 
 # 20) WPA2/WPA3-Enterprise mixed (SHA256 + Suite-B-192), PMF required
-V20_NAME="W2SHA-W3-CG256-P2"
+V20_NAME="W2E-SHA-W3E-CG256-P2"
 V20_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP-SHA256 WPA-EAP-SUITE-B-192
@@ -261,7 +261,7 @@ B
 )
 
 # 21) WPA2/WPA3-Enterprise mixed (все три AKM), PMF required
-V21_NAME="W2W3-ALL-CG256-P2"
+V21_NAME="W2E-SHA-W3E-ALL-CG256-P2"
 V21_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP WPA-EAP-SHA256 WPA-EAP-SUITE-B-192
