@@ -147,30 +147,30 @@ AP запущен!
 - `WPA2EAPSHA256-GCMP-PMF2` - SHA256, GCMP, PMF required
 
 ### WPA2-Enterprise Mixed AKM
-- `WPA2EAP+SHA256-CCMP-PMF1` - оба AKM, PMF optional
-- `WPA2EAP+SHA256-CCMP-PMF2` - оба AKM, PMF required
+- `WPA2EAP_SHA256-CCMP-PMF1` - оба AKM, PMF optional
+- `WPA2EAP_SHA256-CCMP-PMF2` - оба AKM, PMF required
 
 ### WPA2-Enterprise GCMP
 - `WPA2EAP-GCMP-PMF1` - GCMP, PMF optional
 - `WPA2EAP-GCMP-PMF2` - GCMP, PMF required
-- `WPA2EAP-CCMP+GCMP-PMF1` - оба cipher, PMF optional
+- `WPA2EAP-CCMP_GCMP-PMF1` - оба cipher, PMF optional
 
 ### WPA3-Enterprise
 - `WPA3EAP-SUITEB192-PMF2` - Suite-B 192-bit, GCMP-256
 
 ### WPA2/WPA3-Enterprise mixed
-- `WPA2+WPA3EAP-CCMP+GCMP256-PMF2` - WPA-EAP + Suite-B-192
-- `WPA2SHA256+WPA3EAP-CCMP+GCMP256-PMF2` - SHA256 + Suite-B-192
-- `WPA2ALL+WPA3EAP-CCMP+GCMP256-PMF2` - все 3 AKM (WPA-EAP + SHA256 + Suite-B)
+- `WPA2_WPA3EAP-CCMP_GCMP256-PMF2` - WPA-EAP + Suite-B-192
+- `WPA2SHA256_WPA3EAP-CCMP_GCMP256-PMF2` - SHA256 + Suite-B-192
+- `WPA2ALL_WPA3EAP-CCMP_GCMP256-PMF2` - все 3 AKM (WPA-EAP + SHA256 + Suite-B)
 
 ### WPA-Enterprise (legacy WPA1)
 - `WPA1EAP-TKIP-PMF0` - только WPA1, TKIP
 
 ### WPA/WPA2-Enterprise (mixed mode)
-- `WPA+WPA2EAP-TKIP-PMF0` - TKIP только, PMF off
-- `WPA+WPA2EAP-TKIP+CCMP-PMF0` - TKIP+CCMP, PMF off
-- `WPA+WPA2EAP-TKIP+CCMP-PMF1` - TKIP+CCMP, PMF optional
-- `WPA+WPA2EAP-CCMP-PMF0` - CCMP только, PMF off
+- `WPA_WPA2EAP-TKIP-PMF0` - TKIP только, PMF off
+- `WPA_WPA2EAP-TKIP_CCMP-PMF0` - TKIP+CCMP, PMF off
+- `WPA_WPA2EAP-TKIP_CCMP-PMF1` - TKIP+CCMP, PMF optional
+- `WPA_WPA2EAP-CCMP-PMF0` - CCMP только, PMF off
 
 _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 
