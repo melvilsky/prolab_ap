@@ -87,11 +87,11 @@ show_configs() {
             params="${GREEN}5GHz${NC}"
         fi
         
-        if [[ "$basename" =~ "PMF0" ]]; then
+        if [[ "$basename" =~ "PMF-off" ]]; then
             params="$params ${RED}PMF:off${NC}"
-        elif [[ "$basename" =~ "PMF1" ]]; then
+        elif [[ "$basename" =~ "PMF-opt" ]]; then
             params="$params ${YELLOW}PMF:opt${NC}"
-        elif [[ "$basename" =~ "PMF2" ]]; then
+        elif [[ "$basename" =~ "PMF-req" ]]; then
             params="$params ${GREEN}PMF:req${NC}"
         fi
         
@@ -99,10 +99,16 @@ show_configs() {
             params="$params ${CYAN}SHA256${NC}"
         fi
         
+        if [[ "$basename" =~ "WPA3" ]]; then
+            params="$params ${BOLD}WPA3${NC}"
+        fi
+        
         if [[ "$basename" =~ "GCMP" ]]; then
             params="$params ${BLUE}GCMP${NC}"
-        elif [[ "$basename" =~ "SUITEB" ]]; then
-            params="$params ${BOLD}Suite-B${NC}"
+        fi
+        
+        if [[ "$basename" =~ "TKIP" ]]; then
+            params="$params ${RED}TKIP${NC}"
         fi
         
         printf "%-3s %-40s %b\n" "$i" "$ssid" "$params"
@@ -136,11 +142,13 @@ run_ap() {
     fi
     
     local conf=$(ls -1 "$CONFIGS_DIR"/*.conf | sed -n "${choice}p")
-    local ssid=$(basename "$conf" .conf)
+    local profile=$(basename "$conf" .conf)
+    local ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
     
     echo
     echo -e "${BLUE}════════════════════════════════════════${NC}"
-    echo -e "${GREEN}▶ Запуск AP: $ssid${NC}"
+    echo -e "${GREEN}▶ Запуск профиля: $profile${NC}"
+    echo -e "${CYAN}  SSID: $ssid${NC}"
     echo -e "${BLUE}════════════════════════════════════════${NC}"
     echo
     echo -e "${YELLOW}💡 Подсказка:${NC}"
