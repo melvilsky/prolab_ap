@@ -172,15 +172,26 @@ AP запущен!
 - `WPA-WPA2Ent-TKIP-CCMP-P1` - TKIP+CCMP, PMF optional
 - `WPA-WPA2Ent-CCMP-P0` - CCMP только, PMF off
 
-**Расшифровка:**
-- `WPA2Ent` = WPA2-Enterprise
-- `WPA3Ent` = WPA3-Enterprise
-- `W2E` = WPA2-Enterprise
-- `W3E` = WPA3-Enterprise
-- `Mix` = Mixed AKM
-- `P0/P1/P2` = PMF off/optional/required
-- `G256` = GCMP-256
-- `Leg` = Legacy
+**Расшифровка (легенда SSID):**
+
+| Обозначение | Значение |
+|---|---|
+| `LAB-24` | Диапазон 2.4 GHz |
+| `LAB-5G` | Диапазон 5 GHz |
+| `WPA1Ent` | WPA-Enterprise (WPA1, legacy) |
+| `WPA2Ent` | WPA2-Enterprise |
+| `WPA3Ent` | WPA3-Enterprise (Suite-B) |
+| `W2E` | WPA2-Enterprise (коротко) |
+| `W3E` | WPA3-Enterprise (коротко) |
+| `Mix` | Mixed AKM (WPA-EAP + SHA256) |
+| `SHA` | AKM SHA256 |
+| `CCMP` | Cipher CCMP |
+| `GCMP` | Cipher GCMP |
+| `G256` | GCMP-256 (Suite-B) |
+| `P0` | PMF off |
+| `P1` | PMF optional |
+| `P2` | PMF required |
+| `Leg` | Legacy (без 802.11n) |
 
 _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 
