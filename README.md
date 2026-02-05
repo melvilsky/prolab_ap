@@ -1,6 +1,6 @@
 # PRO LAB - Enterprise WiFi Testing
 
-Тестовая лаборатория для Enterprise WiFi (WPA2/WPA3-Enterprise) с 14 готовыми конфигурациями.
+Тестовая лаборатория для Enterprise WiFi с 36 готовыми конфигурациями (WPA1/WPA2/WPA3-Enterprise, все смешанные режимы).
 
 ---
 
@@ -133,17 +133,41 @@ AP запущен!
 
 ## Конфигурации
 
-| № | SSID | AKM | PMF | Описание |
-|---|------|-----|-----|----------|
-| 1 | LAB-24-WPA2EAP-CCMP-PMF0 | WPA-EAP | off | Старые устройства |
-| 2 | LAB-24-WPA2EAP-CCMP-PMF1 | WPA-EAP | optional | **Рекомендуется** |
-| 3 | LAB-24-WPA2EAP-CCMP-PMF2 | WPA-EAP | required | Современные |
-| 4 | LAB-24-WPA2EAPSHA256-PMF2 | SHA256 | required | Усиленная безопасность |
-| 5 | LAB-24-WPA2EAP+SHA256-PMF1 | Mixed | optional | Переходный |
-| 6 | LAB-24-WPA2EAP-GCMP-PMF1 | WPA-EAP | optional | GCMP cipher |
-| 7 | LAB-24-WPA3EAP-SUITEB192-PMF2 | Suite-B | required | WPA3-Enterprise |
+**36 конфигов** (18 для 2.4GHz + 18 для 5GHz)
 
-_+ аналогичные 7 для 5 GHz_
+### WPA2-Enterprise (базовые)
+- `WPA2EAP-CCMP-PMF0` - CCMP, PMF off (legacy)
+- `WPA2EAP-CCMP-PMF1` - CCMP, PMF optional (**рекомендуется**)
+- `WPA2EAP-CCMP-PMF2` - CCMP, PMF required
+- `WPA2EAP-CCMP-PMF0-LEGACY` - без 802.11n (старые устройства)
+
+### WPA2-Enterprise SHA256
+- `WPA2EAPSHA256-CCMP-PMF1` - SHA256, CCMP, PMF optional
+- `WPA2EAPSHA256-CCMP-PMF2` - SHA256, CCMP, PMF required
+- `WPA2EAPSHA256-GCMP-PMF2` - SHA256, GCMP, PMF required
+
+### WPA2-Enterprise Mixed AKM
+- `WPA2EAP+SHA256-CCMP-PMF1` - оба AKM, PMF optional
+- `WPA2EAP+SHA256-CCMP-PMF2` - оба AKM, PMF required
+
+### WPA2-Enterprise GCMP
+- `WPA2EAP-GCMP-PMF1` - GCMP, PMF optional
+- `WPA2EAP-GCMP-PMF2` - GCMP, PMF required
+- `WPA2EAP-CCMP+GCMP-PMF1` - оба cipher, PMF optional
+
+### WPA3-Enterprise
+- `WPA3EAP-SUITEB192-PMF2` - Suite-B 192-bit, GCMP-256
+
+### WPA-Enterprise (legacy WPA1)
+- `WPA1EAP-TKIP-PMF0` - только WPA1, TKIP
+
+### WPA/WPA2-Enterprise (mixed mode)
+- `WPA+WPA2EAP-TKIP-PMF0` - TKIP только, PMF off
+- `WPA+WPA2EAP-TKIP+CCMP-PMF0` - TKIP+CCMP, PMF off
+- `WPA+WPA2EAP-TKIP+CCMP-PMF1` - TKIP+CCMP, PMF optional
+- `WPA+WPA2EAP-CCMP-PMF0` - CCMP только, PMF off
+
+_Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 
 ---
 

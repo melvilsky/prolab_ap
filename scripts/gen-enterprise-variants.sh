@@ -112,6 +112,121 @@ ieee80211w=2
 B
 )
 
+# 8) WPA/WPA2-Enterprise mixed, TKIP only (legacy), PMF off
+V8_NAME="WPA+WPA2EAP-TKIP-PMF0"
+V8_BODY=$(cat <<'B'
+wpa=3
+wpa_key_mgmt=WPA-EAP
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+ieee80211w=0
+B
+)
+
+# 9) WPA/WPA2-Enterprise mixed, TKIP+CCMP, PMF off
+V9_NAME="WPA+WPA2EAP-TKIP+CCMP-PMF0"
+V9_BODY=$(cat <<'B'
+wpa=3
+wpa_key_mgmt=WPA-EAP
+wpa_pairwise=TKIP CCMP
+rsn_pairwise=CCMP
+ieee80211w=0
+B
+)
+
+# 10) WPA/WPA2-Enterprise mixed, TKIP+CCMP, PMF optional
+V10_NAME="WPA+WPA2EAP-TKIP+CCMP-PMF1"
+V10_BODY=$(cat <<'B'
+wpa=3
+wpa_key_mgmt=WPA-EAP
+wpa_pairwise=TKIP CCMP
+rsn_pairwise=CCMP
+ieee80211w=1
+B
+)
+
+# 11) WPA-Enterprise only (legacy WPA1), TKIP, PMF off
+V11_NAME="WPA1EAP-TKIP-PMF0"
+V11_BODY=$(cat <<'B'
+wpa=1
+wpa_key_mgmt=WPA-EAP
+wpa_pairwise=TKIP
+ieee80211w=0
+B
+)
+
+# 12) WPA2-Enterprise, CCMP+GCMP mixed cipher, PMF optional
+V12_NAME="WPA2EAP-CCMP+GCMP-PMF1"
+V12_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP
+rsn_pairwise=CCMP GCMP
+ieee80211w=1
+B
+)
+
+# 13) WPA2-Enterprise SHA256, CCMP, PMF optional (не required)
+V13_NAME="WPA2EAPSHA256-CCMP-PMF1"
+V13_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP-SHA256
+rsn_pairwise=CCMP
+ieee80211w=1
+B
+)
+
+# 14) WPA2-Enterprise mixed AKM, CCMP, PMF required
+V14_NAME="WPA2EAP+SHA256-CCMP-PMF2"
+V14_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP WPA-EAP-SHA256
+rsn_pairwise=CCMP
+ieee80211w=2
+B
+)
+
+# 15) WPA2-Enterprise, GCMP, PMF required
+V15_NAME="WPA2EAP-GCMP-PMF2"
+V15_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP
+rsn_pairwise=GCMP
+ieee80211w=2
+B
+)
+
+# 16) WPA2-Enterprise SHA256, GCMP, PMF required
+V16_NAME="WPA2EAPSHA256-GCMP-PMF2"
+V16_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP-SHA256
+rsn_pairwise=GCMP
+ieee80211w=2
+B
+)
+
+# 17) WPA/WPA2-Enterprise, CCMP only (no TKIP), PMF off
+V17_NAME="WPA+WPA2EAP-CCMP-PMF0"
+V17_BODY=$(cat <<'B'
+wpa=3
+wpa_key_mgmt=WPA-EAP
+wpa_pairwise=CCMP
+rsn_pairwise=CCMP
+ieee80211w=0
+B
+)
+
+# 18) WPA2-Enterprise, CCMP, PMF off (но с 802.11n отключенным для совместимости)
+V18_NAME="WPA2EAP-CCMP-PMF0-LEGACY"
+V18_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP
+rsn_pairwise=CCMP
+ieee80211w=0
+# Без 802.11n для максимальной совместимости
+B
+)
+
 # ---------- Генерация для 2.4G и 5G ----------
 # В SSID мы кодируем: диапазон + вариант
 # Пример: LAB-24-WPA2EAP-CCMP-PMF0
@@ -126,6 +241,17 @@ gen_all() {
   write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V5_NAME}" "${extra}"$'\n'"${V5_BODY}"
   write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V6_NAME}" "${extra}"$'\n'"${V6_BODY}"
   write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V7_NAME}" "${extra}"$'\n'"${V7_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V8_NAME}" "${extra}"$'\n'"${V8_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V9_NAME}" "${extra}"$'\n'"${V9_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V10_NAME}" "${extra}"$'\n'"${V10_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V11_NAME}" "${extra}"$'\n'"${V11_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V12_NAME}" "${extra}"$'\n'"${V12_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V13_NAME}" "${extra}"$'\n'"${V13_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V14_NAME}" "${extra}"$'\n'"${V14_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V15_NAME}" "${extra}"$'\n'"${V15_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V16_NAME}" "${extra}"$'\n'"${V16_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V17_NAME}" "${extra}"$'\n'"${V17_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V18_NAME}" "${extra}"$'\n'"${V18_BODY}"
 }
 
 # 2.4 GHz
