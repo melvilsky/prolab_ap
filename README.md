@@ -1,6 +1,6 @@
 # PRO LAB - Enterprise WiFi Testing
 
-Тестовая лаборатория для Enterprise WiFi с 36 готовыми конфигурациями (WPA1/WPA2/WPA3-Enterprise, все смешанные режимы).
+Тестовая лаборатория для Enterprise WiFi с 42 готовыми конфигурациями (WPA1/WPA2/WPA3-Enterprise, все смешанные режимы включая WPA2/WPA3 mixed).
 
 ---
 
@@ -157,6 +157,11 @@ AP запущен!
 
 ### WPA3-Enterprise
 - `WPA3EAP-SUITEB192-PMF2` - Suite-B 192-bit, GCMP-256
+
+### WPA2/WPA3-Enterprise mixed
+- `WPA2+WPA3EAP-CCMP+GCMP256-PMF2` - WPA-EAP + Suite-B-192
+- `WPA2SHA256+WPA3EAP-CCMP+GCMP256-PMF2` - SHA256 + Suite-B-192
+- `WPA2ALL+WPA3EAP-CCMP+GCMP256-PMF2` - все 3 AKM (WPA-EAP + SHA256 + Suite-B)
 
 ### WPA-Enterprise (legacy WPA1)
 - `WPA1EAP-TKIP-PMF0` - только WPA1, TKIP

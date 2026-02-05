@@ -227,6 +227,36 @@ ieee80211w=0
 B
 )
 
+# 19) WPA2/WPA3-Enterprise mixed (WPA-EAP + Suite-B-192), PMF required
+V19_NAME="WPA2+WPA3EAP-CCMP+GCMP256-PMF2"
+V19_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP WPA-EAP-SUITE-B-192
+rsn_pairwise=CCMP GCMP-256
+ieee80211w=2
+B
+)
+
+# 20) WPA2/WPA3-Enterprise mixed (SHA256 + Suite-B-192), PMF required
+V20_NAME="WPA2SHA256+WPA3EAP-CCMP+GCMP256-PMF2"
+V20_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP-SHA256 WPA-EAP-SUITE-B-192
+rsn_pairwise=CCMP GCMP-256
+ieee80211w=2
+B
+)
+
+# 21) WPA2/WPA3-Enterprise mixed (все три AKM), PMF required
+V21_NAME="WPA2ALL+WPA3EAP-CCMP+GCMP256-PMF2"
+V21_BODY=$(cat <<'B'
+wpa=2
+wpa_key_mgmt=WPA-EAP WPA-EAP-SHA256 WPA-EAP-SUITE-B-192
+rsn_pairwise=CCMP GCMP-256
+ieee80211w=2
+B
+)
+
 # ---------- Генерация для 2.4G и 5G ----------
 # В SSID мы кодируем: диапазон + вариант
 # Пример: LAB-24-WPA2EAP-CCMP-PMF0
@@ -252,6 +282,9 @@ gen_all() {
   write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V16_NAME}" "${extra}"$'\n'"${V16_BODY}"
   write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V17_NAME}" "${extra}"$'\n'"${V17_BODY}"
   write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V18_NAME}" "${extra}"$'\n'"${V18_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V19_NAME}" "${extra}"$'\n'"${V19_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V20_NAME}" "${extra}"$'\n'"${V20_BODY}"
+  write_cfg "$band" "$hw_mode" "$channel" "LAB-${band}-${V21_NAME}" "${extra}"$'\n'"${V21_BODY}"
 }
 
 # 2.4 GHz
