@@ -133,7 +133,7 @@ AP запущен!
 
 ## Конфигурации
 
-**36 конфигов** (18 для 2.4GHz + 18 для 5GHz)
+**42 конфига** (21 для 2.4GHz + 21 для 5GHz)
 
 ### WPA2-Enterprise (базовые)
 - `WPA2EAP-CCMP-PMF0` - CCMP, PMF off (legacy)
@@ -323,7 +323,7 @@ prolab_ap/
 ├── README.md                   - Этот файл
 ├── hostapd/
 │   ├── common/radius.conf      - Настройки RADIUS
-│   ├── generated/              - 14 готовых конфигов
+│   ├── generated/              - 42 готовых конфига
 │   └── custom/                 - Ваши ручные конфиги
 └── scripts/
     ├── ap-run.sh               - Запуск AP
