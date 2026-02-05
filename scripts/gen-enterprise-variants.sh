@@ -42,7 +42,7 @@ CH_5="36"
 
 # ---------- Набор "детектируемых" вариаций ----------
 # 1) WPA2-Enterprise (AKM: WPA-EAP), CCMP, PMF off
-V1_NAME="WPA2EAP-CCMP-PMF0"
+V1_NAME="WPA2-Enterprise-CCMP-PMF-off"
 V1_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -52,7 +52,7 @@ B
 )
 
 # 2) WPA2-Enterprise (AKM: WPA-EAP), CCMP, PMF optional
-V2_NAME="WPA2EAP-CCMP-PMF1"
+V2_NAME="WPA2-Enterprise-CCMP-PMF-opt"
 V2_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -62,7 +62,7 @@ B
 )
 
 # 3) WPA2-Enterprise (AKM: WPA-EAP), CCMP, PMF required
-V3_NAME="WPA2EAP-CCMP-PMF2"
+V3_NAME="WPA2-Enterprise-CCMP-PMF-req"
 V3_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -72,7 +72,7 @@ B
 )
 
 # 4) WPA2-Enterprise SHA256 AKM (WPA-EAP-SHA256), CCMP, PMF required
-V4_NAME="WPA2EAPSHA256-CCMP-PMF2"
+V4_NAME="WPA2-Enterprise-SHA256-CCMP-PMF-req"
 V4_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP-SHA256
@@ -82,7 +82,7 @@ B
 )
 
 # 5) WPA2 mixed AKM (WPA-EAP + WPA-EAP-SHA256), CCMP, PMF optional
-V5_NAME="WPA2EAP_SHA256-CCMP-PMF1"
+V5_NAME="WPA2-Enterprise-Mixed-AKM-CCMP-PMF-opt"
 V5_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP WPA-EAP-SHA256
@@ -92,7 +92,7 @@ B
 )
 
 # 6) WPA2-Enterprise + GCMP (если драйвер/чип поддерживает)
-V6_NAME="WPA2EAP-GCMP-PMF1"
+V6_NAME="WPA2-Enterprise-GCMP-PMF-opt"
 V6_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -103,7 +103,7 @@ B
 
 # 7) Suite-B 192 (WPA3-Enterprise 192-bit)
 # ⚠️ Может НЕ поддерживаться адаптером/драйвером. Если hostapd упадёт — просто пропусти этот конфиг.
-V7_NAME="WPA3EAP-SUITEB192-PMF2"
+V7_NAME="WPA3-Enterprise-192bit-PMF-req"
 V7_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP-SUITE-B-192
@@ -113,7 +113,7 @@ B
 )
 
 # 8) WPA/WPA2-Enterprise mixed, TKIP only (legacy), PMF off
-V8_NAME="WPA_WPA2EAP-TKIP-PMF0"
+V8_NAME="WPA-WPA2-Enterprise-TKIP-PMF-off"
 V8_BODY=$(cat <<'B'
 wpa=3
 wpa_key_mgmt=WPA-EAP
@@ -124,7 +124,7 @@ B
 )
 
 # 9) WPA/WPA2-Enterprise mixed, TKIP+CCMP, PMF off
-V9_NAME="WPA_WPA2EAP-TKIP_CCMP-PMF0"
+V9_NAME="WPA-WPA2-Enterprise-TKIP-CCMP-PMF-off"
 V9_BODY=$(cat <<'B'
 wpa=3
 wpa_key_mgmt=WPA-EAP
@@ -135,7 +135,7 @@ B
 )
 
 # 10) WPA/WPA2-Enterprise mixed, TKIP+CCMP, PMF optional
-V10_NAME="WPA_WPA2EAP-TKIP_CCMP-PMF1"
+V10_NAME="WPA-WPA2-Enterprise-TKIP-CCMP-PMF-opt"
 V10_BODY=$(cat <<'B'
 wpa=3
 wpa_key_mgmt=WPA-EAP
@@ -146,7 +146,7 @@ B
 )
 
 # 11) WPA-Enterprise only (legacy WPA1), TKIP, PMF off
-V11_NAME="WPA1EAP-TKIP-PMF0"
+V11_NAME="WPA-Enterprise-TKIP-PMF-off"
 V11_BODY=$(cat <<'B'
 wpa=1
 wpa_key_mgmt=WPA-EAP
@@ -156,7 +156,7 @@ B
 )
 
 # 12) WPA2-Enterprise, CCMP+GCMP mixed cipher, PMF optional
-V12_NAME="WPA2EAP-CCMP_GCMP-PMF1"
+V12_NAME="WPA2-Enterprise-CCMP-GCMP-PMF-opt"
 V12_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -166,7 +166,7 @@ B
 )
 
 # 13) WPA2-Enterprise SHA256, CCMP, PMF optional (не required)
-V13_NAME="WPA2EAPSHA256-CCMP-PMF1"
+V13_NAME="WPA2-Enterprise-SHA256-CCMP-PMF-opt"
 V13_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP-SHA256
@@ -176,7 +176,7 @@ B
 )
 
 # 14) WPA2-Enterprise mixed AKM, CCMP, PMF required
-V14_NAME="WPA2EAP_SHA256-CCMP-PMF2"
+V14_NAME="WPA2-Enterprise-Mixed-AKM-CCMP-PMF-req"
 V14_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP WPA-EAP-SHA256
@@ -186,7 +186,7 @@ B
 )
 
 # 15) WPA2-Enterprise, GCMP, PMF required
-V15_NAME="WPA2EAP-GCMP-PMF2"
+V15_NAME="WPA2-Enterprise-GCMP-PMF-req"
 V15_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -196,7 +196,7 @@ B
 )
 
 # 16) WPA2-Enterprise SHA256, GCMP, PMF required
-V16_NAME="WPA2EAPSHA256-GCMP-PMF2"
+V16_NAME="WPA2-Enterprise-SHA256-GCMP-PMF-req"
 V16_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP-SHA256
@@ -206,7 +206,7 @@ B
 )
 
 # 17) WPA/WPA2-Enterprise, CCMP only (no TKIP), PMF off
-V17_NAME="WPA_WPA2EAP-CCMP-PMF0"
+V17_NAME="WPA-WPA2-Enterprise-CCMP-PMF-off"
 V17_BODY=$(cat <<'B'
 wpa=3
 wpa_key_mgmt=WPA-EAP
@@ -217,7 +217,7 @@ B
 )
 
 # 18) WPA2-Enterprise, CCMP, PMF off (но с 802.11n отключенным для совместимости)
-V18_NAME="WPA2EAP-CCMP-PMF0-LEGACY"
+V18_NAME="WPA2-Enterprise-CCMP-PMF-off-Legacy"
 V18_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP
@@ -228,7 +228,7 @@ B
 )
 
 # 19) WPA2/WPA3-Enterprise mixed (WPA-EAP + Suite-B-192), PMF required
-V19_NAME="WPA2_WPA3EAP-CCMP_GCMP256-PMF2"
+V19_NAME="WPA2-WPA3-Enterprise-CCMP-GCMP256-PMF-req"
 V19_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP WPA-EAP-SUITE-B-192
@@ -238,7 +238,7 @@ B
 )
 
 # 20) WPA2/WPA3-Enterprise mixed (SHA256 + Suite-B-192), PMF required
-V20_NAME="WPA2SHA256_WPA3EAP-CCMP_GCMP256-PMF2"
+V20_NAME="WPA2-SHA256-WPA3-Enterprise-CCMP-GCMP256-PMF-req"
 V20_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP-SHA256 WPA-EAP-SUITE-B-192
@@ -248,7 +248,7 @@ B
 )
 
 # 21) WPA2/WPA3-Enterprise mixed (все три AKM), PMF required
-V21_NAME="WPA2ALL_WPA3EAP-CCMP_GCMP256-PMF2"
+V21_NAME="WPA2-WPA3-Enterprise-ALL-AKM-CCMP-GCMP256-PMF-req"
 V21_BODY=$(cat <<'B'
 wpa=2
 wpa_key_mgmt=WPA-EAP WPA-EAP-SHA256 WPA-EAP-SUITE-B-192

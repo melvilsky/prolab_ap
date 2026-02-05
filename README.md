@@ -136,41 +136,41 @@ AP запущен!
 **42 конфига** (21 для 2.4GHz + 21 для 5GHz)
 
 ### WPA2-Enterprise (базовые)
-- `WPA2EAP-CCMP-PMF0` - CCMP, PMF off (legacy)
-- `WPA2EAP-CCMP-PMF1` - CCMP, PMF optional (**рекомендуется**)
-- `WPA2EAP-CCMP-PMF2` - CCMP, PMF required
-- `WPA2EAP-CCMP-PMF0-LEGACY` - без 802.11n (старые устройства)
+- `WPA2-Enterprise-CCMP-PMF-off` - CCMP, PMF off (legacy)
+- `WPA2-Enterprise-CCMP-PMF-opt` - CCMP, PMF optional (**рекомендуется**)
+- `WPA2-Enterprise-CCMP-PMF-req` - CCMP, PMF required
+- `WPA2-Enterprise-CCMP-PMF-off-Legacy` - без 802.11n (старые устройства)
 
 ### WPA2-Enterprise SHA256
-- `WPA2EAPSHA256-CCMP-PMF1` - SHA256, CCMP, PMF optional
-- `WPA2EAPSHA256-CCMP-PMF2` - SHA256, CCMP, PMF required
-- `WPA2EAPSHA256-GCMP-PMF2` - SHA256, GCMP, PMF required
+- `WPA2-Enterprise-SHA256-CCMP-PMF-opt` - SHA256, CCMP, PMF optional
+- `WPA2-Enterprise-SHA256-CCMP-PMF-req` - SHA256, CCMP, PMF required
+- `WPA2-Enterprise-SHA256-GCMP-PMF-req` - SHA256, GCMP, PMF required
 
 ### WPA2-Enterprise Mixed AKM
-- `WPA2EAP_SHA256-CCMP-PMF1` - оба AKM, PMF optional
-- `WPA2EAP_SHA256-CCMP-PMF2` - оба AKM, PMF required
+- `WPA2-Enterprise-Mixed-AKM-CCMP-PMF-opt` - оба AKM, PMF optional
+- `WPA2-Enterprise-Mixed-AKM-CCMP-PMF-req` - оба AKM, PMF required
 
 ### WPA2-Enterprise GCMP
-- `WPA2EAP-GCMP-PMF1` - GCMP, PMF optional
-- `WPA2EAP-GCMP-PMF2` - GCMP, PMF required
-- `WPA2EAP-CCMP_GCMP-PMF1` - оба cipher, PMF optional
+- `WPA2-Enterprise-GCMP-PMF-opt` - GCMP, PMF optional
+- `WPA2-Enterprise-GCMP-PMF-req` - GCMP, PMF required
+- `WPA2-Enterprise-CCMP-GCMP-PMF-opt` - оба cipher, PMF optional
 
 ### WPA3-Enterprise
-- `WPA3EAP-SUITEB192-PMF2` - Suite-B 192-bit, GCMP-256
+- `WPA3-Enterprise-192bit-PMF-req` - Suite-B 192-bit, GCMP-256
 
-### WPA2/WPA3-Enterprise mixed
-- `WPA2_WPA3EAP-CCMP_GCMP256-PMF2` - WPA-EAP + Suite-B-192
-- `WPA2SHA256_WPA3EAP-CCMP_GCMP256-PMF2` - SHA256 + Suite-B-192
-- `WPA2ALL_WPA3EAP-CCMP_GCMP256-PMF2` - все 3 AKM (WPA-EAP + SHA256 + Suite-B)
+### WPA2-WPA3-Enterprise mixed
+- `WPA2-WPA3-Enterprise-CCMP-GCMP256-PMF-req` - WPA-EAP + Suite-B-192
+- `WPA2-SHA256-WPA3-Enterprise-CCMP-GCMP256-PMF-req` - SHA256 + Suite-B-192
+- `WPA2-WPA3-Enterprise-ALL-AKM-CCMP-GCMP256-PMF-req` - все 3 AKM
 
 ### WPA-Enterprise (legacy WPA1)
-- `WPA1EAP-TKIP-PMF0` - только WPA1, TKIP
+- `WPA-Enterprise-TKIP-PMF-off` - только WPA1, TKIP
 
-### WPA/WPA2-Enterprise (mixed mode)
-- `WPA_WPA2EAP-TKIP-PMF0` - TKIP только, PMF off
-- `WPA_WPA2EAP-TKIP_CCMP-PMF0` - TKIP+CCMP, PMF off
-- `WPA_WPA2EAP-TKIP_CCMP-PMF1` - TKIP+CCMP, PMF optional
-- `WPA_WPA2EAP-CCMP-PMF0` - CCMP только, PMF off
+### WPA-WPA2-Enterprise (mixed mode)
+- `WPA-WPA2-Enterprise-TKIP-PMF-off` - TKIP только, PMF off
+- `WPA-WPA2-Enterprise-TKIP-CCMP-PMF-off` - TKIP+CCMP, PMF off
+- `WPA-WPA2-Enterprise-TKIP-CCMP-PMF-opt` - TKIP+CCMP, PMF optional
+- `WPA-WPA2-Enterprise-CCMP-PMF-off` - CCMP только, PMF off
 
 _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 
