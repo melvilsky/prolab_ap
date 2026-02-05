@@ -319,20 +319,23 @@ sudo netstat -tulpn | grep 1812
 
 ```
 prolab_ap/
-├── lab.sh                      - Главный скрипт
+├── lab.sh                      - Главный скрипт с меню
 ├── README.md                   - Этот файл
 ├── hostapd/
-│   ├── common/radius.conf      - Настройки RADIUS
-│   ├── generated/              - 42 готовых конфига
+│   ├── common/radius.conf      - Шаблон RADIUS (справочно)
+│   ├── generated/              - 42 готовых конфига (автономных)
 │   └── custom/                 - Ваши ручные конфиги
 └── scripts/
     ├── ap-run.sh               - Запуск AP
     ├── gen-enterprise-variants.sh - Генератор
-    ├── test-all-configs.sh     - Автотест
-    ├── check-system.sh         - Диагностика
+    ├── test-all-configs.sh     - Автотест всех конфигов
+    ├── check-system.sh         - Диагностика системы
     ├── install-to-server.sh    - Установка на сервер
-    └── clean-generated.sh      - Очистка
+    └── clean-generated.sh      - Очистка конфигов
 ```
+
+**Примечание:** Конфиги в `generated/` автономны - RADIUS настройки встроены в каждый файл.
+`common/radius.conf` используется только как справочный шаблон.
 
 ---
 
@@ -391,7 +394,20 @@ wpa_key_mgmt=WPA-EAP
 rsn_pairwise=CCMP
 ieee80211w=1
 
-include=../common/radius.conf
+# RADIUS configuration
+auth_server_addr=127.0.0.1
+auth_server_port=1812
+auth_server_shared_secret=testing123
+
+acct_server_addr=127.0.0.1
+acct_server_port=1813
+acct_server_shared_secret=testing123
+
+own_ip_addr=127.0.0.1
+
+ieee8021x=1
+eapol_version=2
+auth_algs=1
 ```
 
 Запуск:
@@ -422,7 +438,18 @@ admin    Cleartext-Password := "adminpass"
 
 ### Изменение RADIUS настроек
 
-Отредактировать: `hostapd/common/radius.conf`
+Для ручных конфигов:
+```bash
+nano hostapd/custom/my-network.conf
+# Изменить секцию # RADIUS configuration
+```
+
+Для автогенерируемых конфигов:
+```bash
+nano scripts/gen-enterprise-variants.sh
+# Изменить секцию "# RADIUS configuration (embedded)" в функции write_cfg()
+./scripts/gen-enterprise-variants.sh  # перегенерировать
+```
 
 ---
 
