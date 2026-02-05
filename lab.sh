@@ -74,46 +74,86 @@ show_configs() {
     printf "${BOLD}%-3s %-40s %-15s${NC}\n" "№" "SSID" "Параметры"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
-    local i=1
-    for conf in "$CONFIGS_DIR"/*.conf; do
-        local basename=$(basename "$conf" .conf)
-        local ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
+    local index_file="$CONFIGS_DIR/index.tsv"
+    if [ -f "$index_file" ]; then
+        while IFS=$'\t' read -r num profile ssid; do
+            local basename="${profile%.conf}"
+            # Определить параметры по имени профиля
+            local params=""
+            if [[ "$basename" =~ "24" ]]; then
+                params="${GREEN}2.4G${NC}"
+            elif [[ "$basename" =~ "5G" ]]; then
+                params="${GREEN}5GHz${NC}"
+            fi
+            
+            if [[ "$basename" =~ "-P0" ]]; then
+                params="$params ${RED}PMF:off${NC}"
+            elif [[ "$basename" =~ "-P1" ]]; then
+                params="$params ${YELLOW}PMF:opt${NC}"
+            elif [[ "$basename" =~ "-P2" ]]; then
+                params="$params ${GREEN}PMF:req${NC}"
+            fi
+            
+            if [[ "$basename" =~ "SHA" ]]; then
+                params="$params ${CYAN}SHA256${NC}"
+            fi
+            
+            if [[ "$basename" =~ "W3" ]]; then
+                params="$params ${BOLD}WPA3${NC}"
+            fi
+            
+            if [[ "$basename" =~ "GCMP" ]] || [[ "$basename" =~ "G256" ]]; then
+                params="$params ${BLUE}GCMP${NC}"
+            fi
+            
+            if [[ "$basename" =~ "TKIP" ]]; then
+                params="$params ${RED}TKIP${NC}"
+            fi
+            
+            printf "%-3s %-40s %b\n" "$num" "$ssid" "$params"
+        done < "$index_file"
+    else
+        local i=1
+        for conf in "$CONFIGS_DIR"/*.conf; do
+            local basename=$(basename "$conf" .conf)
+            local ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
         
-        # Определить параметры по имени
-        local params=""
-        if [[ "$basename" =~ "24" ]]; then
-            params="${GREEN}2.4G${NC}"
-        elif [[ "$basename" =~ "5G" ]]; then
-            params="${GREEN}5GHz${NC}"
-        fi
-        
-        if [[ "$basename" =~ "PMF-off" ]]; then
-            params="$params ${RED}PMF:off${NC}"
-        elif [[ "$basename" =~ "PMF-opt" ]]; then
-            params="$params ${YELLOW}PMF:opt${NC}"
-        elif [[ "$basename" =~ "PMF-req" ]]; then
-            params="$params ${GREEN}PMF:req${NC}"
-        fi
-        
-        if [[ "$basename" =~ "SHA256" ]]; then
-            params="$params ${CYAN}SHA256${NC}"
-        fi
-        
-        if [[ "$basename" =~ "WPA3" ]]; then
-            params="$params ${BOLD}WPA3${NC}"
-        fi
-        
-        if [[ "$basename" =~ "GCMP" ]]; then
-            params="$params ${BLUE}GCMP${NC}"
-        fi
-        
-        if [[ "$basename" =~ "TKIP" ]]; then
-            params="$params ${RED}TKIP${NC}"
-        fi
-        
-        printf "%-3s %-40s %b\n" "$i" "$ssid" "$params"
-        ((i++))
-    done
+            # Определить параметры по имени
+            local params=""
+            if [[ "$basename" =~ "24" ]]; then
+                params="${GREEN}2.4G${NC}"
+            elif [[ "$basename" =~ "5G" ]]; then
+                params="${GREEN}5GHz${NC}"
+            fi
+            
+            if [[ "$basename" =~ "-P0" ]]; then
+                params="$params ${RED}PMF:off${NC}"
+            elif [[ "$basename" =~ "-P1" ]]; then
+                params="$params ${YELLOW}PMF:opt${NC}"
+            elif [[ "$basename" =~ "-P2" ]]; then
+                params="$params ${GREEN}PMF:req${NC}"
+            fi
+            
+            if [[ "$basename" =~ "SHA" ]]; then
+                params="$params ${CYAN}SHA256${NC}"
+            fi
+            
+            if [[ "$basename" =~ "W3" ]]; then
+                params="$params ${BOLD}WPA3${NC}"
+            fi
+            
+            if [[ "$basename" =~ "GCMP" ]] || [[ "$basename" =~ "G256" ]]; then
+                params="$params ${BLUE}GCMP${NC}"
+            fi
+            
+            if [[ "$basename" =~ "TKIP" ]]; then
+                params="$params ${RED}TKIP${NC}"
+            fi
+            
+            printf "%-3s %-40s %b\n" "$i" "$ssid" "$params"
+            ((i++))
+        done
+    fi
     
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo
@@ -141,9 +181,19 @@ run_ap() {
         return
     fi
     
-    local conf=$(ls -1 "$CONFIGS_DIR"/*.conf | sed -n "${choice}p")
-    local profile=$(basename "$conf" .conf)
-    local ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
+    local conf=""
+    local profile=""
+    local ssid=""
+    local index_file="$CONFIGS_DIR/index.tsv"
+    if [ -f "$index_file" ]; then
+        profile=$(awk -v n="$choice" -F'\t' 'NR==n {print $2; exit}' "$index_file")
+        ssid=$(awk -v n="$choice" -F'\t' 'NR==n {print $3; exit}' "$index_file")
+        conf="$CONFIGS_DIR/$profile"
+    else
+        conf=$(ls -1 "$CONFIGS_DIR"/*.conf | sed -n "${choice}p")
+        profile=$(basename "$conf")
+        ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
+    fi
     
     echo
     echo -e "${BLUE}════════════════════════════════════════${NC}"

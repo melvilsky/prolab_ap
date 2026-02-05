@@ -306,6 +306,18 @@ gen_all "24" "g" "${CH_24}" ""
 # 5 GHz (добавим 11ac)
 gen_all "5G" "a" "${CH_5}" $'ieee80211ac=1'
 
+# ---------- Индекс для стабильных номеров ----------
+# Формат: <номер>\t<профиль_файл>\t<ssid>
+INDEX_FILE="${OUT}/index.tsv"
+i=1
+: > "$INDEX_FILE"
+ls -1 "$OUT"/*.conf | sort | while IFS= read -r conf; do
+  ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
+  profile=$(basename "$conf")
+  printf "%02d\t%s\t%s\n" "$i" "$profile" "$ssid" >> "$INDEX_FILE"
+  i=$((i + 1))
+done
+
 echo
 echo "DONE. Конфиги лежат в: $OUT"
 echo "Подсказка: ls -1 $OUT"
