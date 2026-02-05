@@ -99,7 +99,7 @@ AP запущен!
 
 **На телефоне/ноутбуке:**
 
-Найдите сеть: `LAB-24-WPA2EAP-CCMP-PMF1` (или другую)
+Найдите сеть: `LAB-24-WPA2Ent-CCMP-P1` (или другую)
 
 **Настройки:**
 - Security: WPA2-Enterprise
@@ -196,13 +196,17 @@ _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 q) Выход
 ```
 
+**Номера профилей фиксированы.** При генерации создается `hostapd/generated/index.tsv`,
+и меню читает номера из него. После `gen-enterprise-variants.sh` номера всегда
+соответствуют одному и тому же SSID.
+
 ---
 
 ## Команды напрямую
 
 ```bash
 # Запуск конкретного конфига
-./scripts/ap-run.sh hostapd/generated/LAB-24-WPA2EAP-CCMP-PMF1.conf
+./scripts/ap-run.sh hostapd/generated/LAB-24-WPA2Ent-CCMP-P1.conf
 
 # Проверка системы
 ./scripts/check-system.sh
@@ -332,6 +336,7 @@ prolab_ap/
 ├── hostapd/
 │   ├── common/radius.conf      - Шаблон RADIUS (справочно)
 │   ├── generated/              - 42 готовых конфига (автономных)
+│   │   └── index.tsv            - фиксированные номера профилей
 │   └── custom/                 - Ваши ручные конфиги
 └── scripts/
     ├── ap-run.sh               - Запуск AP
@@ -441,7 +446,7 @@ admin    Cleartext-Password := "adminpass"
 
 ```bash
 # Логи hostapd с сохранением
-./scripts/ap-run.sh hostapd/generated/LAB-24-WPA2EAP-CCMP-PMF1.conf 2>&1 | tee hostapd.log
+./scripts/ap-run.sh hostapd/generated/LAB-24-WPA2Ent-CCMP-P1.conf 2>&1 | tee hostapd.log
 ```
 
 ### Изменение RADIUS настроек
