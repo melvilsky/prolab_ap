@@ -50,8 +50,9 @@ show_menu() {
     echo -e "  ${CYAN}3${NC}) 🔄 Сгенерировать конфиги"
     echo -e "  ${CYAN}4${NC}) ✅ Проверить систему"
     echo -e "  ${CYAN}5${NC}) 🧪 Автотест всех конфигов"
-    echo -e "  ${CYAN}6${NC}) ⚙️  Настройки"
-    echo -e "  ${CYAN}7${NC}) 📚 Документация"
+    echo -e "  ${CYAN}6${NC}) ⏭ Полуавто (Enter=следующий)"
+    echo -e "  ${CYAN}7${NC}) ⚙️  Настройки"
+    echo -e "  ${CYAN}8${NC}) 📚 Документация"
     echo -e "  ${CYAN}q${NC}) Выход"
     echo
     local index_file="$CONFIGS_DIR/index.tsv"
@@ -292,6 +293,26 @@ auto_test() {
     read -p "Нажмите Enter для продолжения..."
 }
 
+# Полуавтоматический тест
+semi_auto_test() {
+    show_header
+    echo -e "${BOLD}⏭ Полуавтоматическое тестирование${NC}"
+    echo
+    echo -n "Длительность теста каждого конфига (секунды, по умолчанию 30): "
+    read duration
+    duration=${duration:-30}
+    
+    echo
+    echo -e "${YELLOW}⚠ Убедитесь, что FreeRADIUS запущен!${NC}"
+    echo
+    read -p "Нажмите Enter для начала..."
+    
+    "$SCRIPT_DIR/scripts/test-all-configs-step.sh" "$duration"
+    
+    echo
+    read -p "Нажмите Enter для продолжения..."
+}
+
 # Настройки
 settings_menu() {
     show_header
@@ -360,8 +381,9 @@ main() {
             3) generate_configs ;;
             4) check_system ;;
             5) auto_test ;;
-            6) settings_menu ;;
-            7) show_docs ;;
+            6) semi_auto_test ;;
+            7) settings_menu ;;
+            8) show_docs ;;
             q|Q) echo -e "\n${GREEN}До свидания!${NC}"; exit 0 ;;
             *) echo -e "${RED}Неверный выбор${NC}"; sleep 1 ;;
         esac
