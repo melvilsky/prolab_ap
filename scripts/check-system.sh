@@ -60,8 +60,8 @@ if ip link show "$IFACE" >/dev/null 2>&1; then
     echo -e "${GREEN}✓ Интерфейс $IFACE существует${NC}"
     ((SUCCESS++))
     
-    # Проверка поддержки AP режима
-    if iw list 2>/dev/null | grep -q "* AP"; then
+    # Проверка поддержки AP режима (секция "Supported interface modes:")
+    if iw list 2>/dev/null | sed -n '/Supported interface modes:/,/^[[:space:]]*$/p' | grep -qF '* AP'; then
         echo -e "${GREEN}✓ Режим AP поддерживается${NC}"
         ((SUCCESS++))
     else
