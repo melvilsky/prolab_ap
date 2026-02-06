@@ -86,6 +86,15 @@ export WIFI_IFACE=wlan0  # замените на ваш интерфейс
 ./lab.sh
 ```
 
+При старте `lab.sh` выполняет **Preflight Check** (быстрая проверка окружения), чтобы вы заранее понимали, какие профили реально “взлетят” на вашем адаптере/hostapd:
+
+- **AP mode**: есть ли режим точки доступа (`iw list | grep AP`)
+- **Cipher**: есть ли `GCMP` и `GCMP-256` (без них часть профилей не поднимется)
+- **PMF (802.11w)**: поддержка в `hostapd` (best-effort)
+- **AKM**: наличие `WPA-EAP-SHA256` и `WPA-EAP-SUITE-B-192` в `hostapd` (best-effort)
+- **hostapd version**: отображается версия (слишком старые сборки часто ломают WPA3/SHA256)
+- **FreeRADIUS**: запущен ли процесс (иначе 802.1X не пройдет)
+
 В меню:
 - Нажмите `1` (Запустить AP)
 - Выберите конфиг (рекомендую `2`)
@@ -206,18 +215,33 @@ _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 4) Проверка системы      - Диагностика
 5) Автотест              - Прогон всех по очереди
 6) Полуавто              - Enter для перехода к следующей сети
-7) Обновить лабу         - git pull + regen
+7) Обновить лабу         - автоматически: очистка → git pull → генерация
 8) Настройки             - Изменить Wi-Fi интерфейс
 9) Документация          - Открыть README
 q) Выход
 ```
 
 ### Если `git pull` ругается на `untracked files would be overwritten`
-Это значит, что у вас локально остались файлы в `hostapd/generated/`, и Git не хочет их перезаписывать.\n\nРешение:\n\n```bash\ncd ~/prolab_ap\nrm -rf hostapd/generated\ngit pull --ff-only\n./scripts/gen-enterprise-variants.sh\n```
+Это значит, что у вас локально остались файлы в `hostapd/generated/`, и Git не хочет их перезаписывать.
+
+Решение: в меню выберите **7) Обновить лабу** — скрипт сам удалит `hostapd/generated`, сделает `git pull` и перегенерирует конфиги. Вручную:
+```bash
+cd ~/prolab_ap
+rm -rf hostapd/generated
+git pull --ff-only
+./scripts/gen-enterprise-variants.sh
+```
 
 **Номера профилей фиксированы.** При генерации создается `hostapd/generated/index.tsv`,
 и меню читает номера из него. После `gen-enterprise-variants.sh` номера всегда
 соответствуют одному и тому же SSID.
+
+**Пометка «❌ unsupported by adapter»:** в списке конфигов (опции 1 и 2) профили, которые
+текущий адаптер или hostapd не поддерживают, помечаются так:  
+`❌ unsupported by adapter (no GCMP-256, Suite-B)`.  
+Критерии берутся из Preflight Check (AP mode, GCMP/GCMP-256, PMF, AKM SHA256/Suite-B).  
+Запустить такой профиль всё равно можно (скрипт спросит подтверждение).  
+Опция 4 «Проверить систему» показывает те же проверки и обновляет флаги.
 
 ---
 
@@ -239,7 +263,8 @@ q) Выход
 # Генерация конфигов заново
 ./scripts/gen-enterprise-variants.sh
 
-# Обновить лабу (git pull + regen)
+# Обновить лабу (в меню: 7 — делается автоматически)
+# Вручную то же самое:
 cd ~/prolab_ap
 rm -rf hostapd/generated
 git pull --ff-only
@@ -308,9 +333,10 @@ sudo systemctl restart NetworkManager
 
 ### Некоторые конфиги не работают
 
-GCMP и Suite-B поддерживаются не всеми адаптерами.
+GCMP и Suite-B поддерживаются не всеми адаптерами. В меню такие профили помечаются  
+**❌ unsupported by adapter (no …)** по результатам Preflight (опция 4 — «Проверить систему»).
 
-Проверить:
+Проверить вручную:
 ```bash
 iw list | grep -A 10 "Supported Cipher"
 ```

@@ -29,6 +29,195 @@ detect_wifi_interface() {
 
 WIFI_IFACE="${WIFI_IFACE:-$(detect_wifi_interface)}"
 
+# ---------- Preflight / Environment Check ----------
+PREFLIGHT_DONE=0
+PREFLIGHT_ERRORS=0
+PREFLIGHT_WARNINGS=0
+PREFLIGHT_LINES=""
+
+# Capability flags (best-effort)
+SUPPORT_AP_MODE=0
+SUPPORT_GCMP=0
+SUPPORT_GCMP256=0
+SUPPORT_SHA256_AKM=0
+SUPPORT_SUITEB=0
+SUPPORT_PMF=0
+
+preflight_add() {
+    # args: level label value
+    local level="$1" label="$2" value="$3"
+    PREFLIGHT_LINES="${PREFLIGHT_LINES}${level}\t${label}\t${value}\n"
+}
+
+preflight_check() {
+    PREFLIGHT_DONE=1
+    PREFLIGHT_ERRORS=0
+    PREFLIGHT_WARNINGS=0
+    PREFLIGHT_LINES=""
+    SUPPORT_AP_MODE=0
+    SUPPORT_GCMP=0
+    SUPPORT_GCMP256=0
+    SUPPORT_SHA256_AKM=0
+    SUPPORT_SUITEB=0
+    SUPPORT_PMF=0
+
+    # Commands
+    if command -v iw >/dev/null 2>&1; then
+        preflight_add "OK" "iw" "found"
+    else
+        preflight_add "ERR" "iw" "missing"
+        PREFLIGHT_ERRORS=$((PREFLIGHT_ERRORS + 1))
+    fi
+
+    local hostapd_path=""
+    if command -v hostapd >/dev/null 2>&1; then
+        hostapd_path="$(command -v hostapd)"
+        preflight_add "OK" "hostapd" "$hostapd_path"
+    else
+        preflight_add "ERR" "hostapd" "missing"
+        PREFLIGHT_ERRORS=$((PREFLIGHT_ERRORS + 1))
+    fi
+
+    if command -v freeradius >/dev/null 2>&1; then
+        preflight_add "OK" "freeradius" "found"
+    else
+        preflight_add "WARN" "freeradius" "binary not found (but service may exist)"
+        PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+    fi
+
+    # Interface state
+    if command -v ip >/dev/null 2>&1 && ip link show "$WIFI_IFACE" >/dev/null 2>&1; then
+        local state_line
+        state_line="$(ip link show "$WIFI_IFACE" | head -n 1)"
+        if echo "$state_line" | grep -q "UP"; then
+            preflight_add "OK" "Interface" "$WIFI_IFACE (UP)"
+        else
+            preflight_add "WARN" "Interface" "$WIFI_IFACE (DOWN) → sudo ip link set $WIFI_IFACE up"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+    else
+        preflight_add "ERR" "Interface" "$WIFI_IFACE not found"
+        PREFLIGHT_ERRORS=$((PREFLIGHT_ERRORS + 1))
+    fi
+
+    # AP mode / ciphers (from iw list)
+    if command -v iw >/dev/null 2>&1; then
+        if iw list 2>/dev/null | grep -qE '^[[:space:]]*\\*[[:space:]]+AP$'; then
+            SUPPORT_AP_MODE=1
+            preflight_add "OK" "AP mode" "supported"
+        else
+            SUPPORT_AP_MODE=0
+            preflight_add "ERR" "AP mode" "NOT supported (adapter/driver)"
+            PREFLIGHT_ERRORS=$((PREFLIGHT_ERRORS + 1))
+        fi
+
+        if iw list 2>/dev/null | grep -q "CCMP"; then
+            preflight_add "OK" "Cipher CCMP" "supported"
+        else
+            preflight_add "WARN" "Cipher CCMP" "not detected (unexpected)"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+
+        if iw list 2>/dev/null | grep -q "GCMP"; then
+            SUPPORT_GCMP=1
+            preflight_add "OK" "Cipher GCMP" "supported"
+        else
+            SUPPORT_GCMP=0
+            preflight_add "WARN" "Cipher GCMP" "not supported → GCMP профили могут падать"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+
+        if iw list 2>/dev/null | grep -qi "GCMP-256"; then
+            SUPPORT_GCMP256=1
+            preflight_add "OK" "Cipher GCMP-256" "supported"
+        else
+            SUPPORT_GCMP256=0
+            preflight_add "WARN" "Cipher GCMP-256" "not supported → Suite-B/WPA3-192 профили могут падать"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+
+        # Regulatory domain (informational)
+        if iw reg get >/dev/null 2>&1; then
+            local reg
+            reg="$(iw reg get 2>/dev/null | awk '/country/ {print $2; exit}' | tr -d ':')"
+            [ -n "$reg" ] && preflight_add "OK" "Regdomain" "$reg"
+        fi
+    fi
+
+    # hostapd feature hints (best-effort, from strings)
+    if [ -n "$hostapd_path" ] && command -v strings >/dev/null 2>&1; then
+        if strings "$hostapd_path" 2>/dev/null | grep -q "WPA-EAP-SHA256"; then
+            SUPPORT_SHA256_AKM=1
+            preflight_add "OK" "AKM SHA256" "hostapd supports"
+        else
+            SUPPORT_SHA256_AKM=0
+            preflight_add "WARN" "AKM SHA256" "not detected in hostapd → SHA256 профили могут падать"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+
+        if strings "$hostapd_path" 2>/dev/null | grep -q "WPA-EAP-SUITE-B-192"; then
+            SUPPORT_SUITEB=1
+            preflight_add "OK" "Suite-B-192" "hostapd supports"
+        else
+            SUPPORT_SUITEB=0
+            preflight_add "WARN" "Suite-B-192" "not detected in hostapd → WPA3-192 профили могут падать"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+
+        if strings "$hostapd_path" 2>/dev/null | grep -q "ieee80211w"; then
+            SUPPORT_PMF=1
+            preflight_add "OK" "PMF (802.11w)" "hostapd supports (best-effort)"
+        else
+            SUPPORT_PMF=0
+            preflight_add "WARN" "PMF (802.11w)" "not detected in hostapd → PMF профили могут падать"
+            PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+        fi
+    fi
+
+    # hostapd version (informational + mild heuristic)
+    if [ -n "$hostapd_path" ]; then
+        local hv
+        hv="$(hostapd -v 2>&1 | head -n 1 | tr -d '\r')"
+        if [ -n "$hv" ]; then
+            preflight_add "OK" "hostapd version" "$hv"
+            if echo "$hv" | grep -qE 'v2\.[0-6]([[:space:]]|$)'; then
+                preflight_add "WARN" "hostapd version" "seems old → WPA3/SHA256 may be broken"
+                PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+            fi
+        fi
+    fi
+
+    # FreeRADIUS running
+    if pgrep -x "freeradius" >/dev/null 2>&1 || pgrep -x "radiusd" >/dev/null 2>&1; then
+        preflight_add "OK" "FreeRADIUS" "running"
+    else
+        preflight_add "WARN" "FreeRADIUS" "not running → sudo freeradius -X"
+        PREFLIGHT_WARNINGS=$((PREFLIGHT_WARNINGS + 1))
+    fi
+}
+
+preflight_print() {
+    echo -e "${BOLD}Preflight Check${NC}"
+    echo -e "${CYAN}--------------------------------${NC}"
+    # Print table
+    printf "%-3s %-18s %s\n" " " "Check" "Result"
+    echo -e "${CYAN}--------------------------------${NC}"
+    printf "%b" "$PREFLIGHT_LINES" | while IFS=$'\t' read -r level label value; do
+        case "$level" in
+            OK)   printf "%b %-18s %s\n" "${GREEN}✓${NC}" "$label" "$value" ;;
+            WARN) printf "%b %-18s %s\n" "${YELLOW}!${NC}" "$label" "$value" ;;
+            ERR)  printf "%b %-18s %s\n" "${RED}✗${NC}" "$label" "$value" ;;
+        esac
+    done
+    echo -e "${CYAN}--------------------------------${NC}"
+    if [ "$PREFLIGHT_ERRORS" -gt 0 ]; then
+        echo -e "${RED}Ошибки: $PREFLIGHT_ERRORS${NC}  ${YELLOW}Предупреждения: $PREFLIGHT_WARNINGS${NC}"
+    else
+        echo -e "${GREEN}Ошибок нет${NC}  ${YELLOW}Предупреждения: $PREFLIGHT_WARNINGS${NC}"
+    fi
+    echo
+}
+
 # Заголовок
 show_header() {
     clear
@@ -38,6 +227,14 @@ show_header() {
     echo
     echo -e "📡 Wi-Fi интерфейс: ${GREEN}$WIFI_IFACE${NC}"
     echo
+    if [ "$PREFLIGHT_DONE" -eq 1 ]; then
+        if [ "$PREFLIGHT_ERRORS" -gt 0 ]; then
+            echo -e "${RED}Preflight:${NC} ошибки=$PREFLIGHT_ERRORS, предупреждения=$PREFLIGHT_WARNINGS (опция 4 для деталей)"
+        else
+            echo -e "${GREEN}Preflight:${NC} OK, предупреждения=$PREFLIGHT_WARNINGS (опция 4 для деталей)"
+        fi
+        echo
+    fi
 }
 
 # Главное меню
@@ -70,6 +267,30 @@ show_menu() {
     echo -n "Выберите действие: "
 }
 
+# По флагам preflight вернуть причину неподдержки (пусто = поддерживается)
+profile_unsupported_reason() {
+    local base="$1" reason=""
+    # WPA3 / Suite-B / GCMP-256 (WPA3Ent-192, W2E3E, W2E-SHA-W3E*)
+    if [[ "$base" =~ (G256|WPA3Ent-192|W2E3E|W2E-SHA-W3E) ]]; then
+        [ "$SUPPORT_GCMP256" -eq 0 ] && reason="${reason}GCMP-256 "
+        [ "$SUPPORT_SUITEB" -eq 0 ] && reason="${reason}Suite-B "
+    fi
+    # GCMP (без G256): WPA2Ent-GCMP-*, WPA2Ent-CCMP-GCMP-*, WPA2Ent-SHA256-GCMP-*
+    if [[ "$base" =~ GCMP ]] && ! [[ "$base" =~ G256 ]]; then
+        [ "$SUPPORT_GCMP" -eq 0 ] && reason="${reason}GCMP "
+    fi
+    # AKM SHA256
+    if [[ "$base" =~ SHA ]]; then
+        [ "$SUPPORT_SHA256_AKM" -eq 0 ] && reason="${reason}SHA256 "
+    fi
+    # PMF required (P2)
+    if [[ "$base" =~ -P2 ]]; then
+        [ "$SUPPORT_PMF" -eq 0 ] && reason="${reason}PMF "
+    fi
+    # trim
+    echo "$reason" | sed 's/ *$//'
+}
+
 # Показать все конфиги с описанием
 show_configs() {
     show_header
@@ -84,7 +305,7 @@ show_configs() {
     fi
     
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    printf "${BOLD}%-3s %-40s %-15s${NC}\n" "№" "SSID" "Параметры"
+    printf "${BOLD}%-3s %-42s %s${NC}\n" "№" "SSID" "Параметры"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     local index_file="$CONFIGS_DIR/index.tsv"
@@ -123,7 +344,14 @@ show_configs() {
                 params="$params ${RED}TKIP${NC}"
             fi
             
-            printf "%-3s %-40s %b\n" "$num" "$ssid" "$params"
+            # Capability-based: пометка "unsupported by adapter"
+            local unsupp
+            unsupp="$(profile_unsupported_reason "$basename")"
+            if [ -n "$unsupp" ]; then
+                params="$params  ${RED}❌ unsupported by adapter (no $unsupp)${NC}"
+            fi
+            
+            printf "%-3s %-42s %b\n" "$num" "$ssid" "$params"
         done < "$index_file"
     else
         local i=1
@@ -163,12 +391,20 @@ show_configs() {
                 params="$params ${RED}TKIP${NC}"
             fi
             
-            printf "%-3s %-40s %b\n" "$i" "$ssid" "$params"
+            unsupp="$(profile_unsupported_reason "$basename")"
+            if [ -n "$unsupp" ]; then
+                params="$params  ${RED}❌ unsupported by adapter (no $unsupp)${NC}"
+            fi
+            
+            printf "%-3s %-42s %b\n" "$i" "$ssid" "$params"
             ((i++))
         done
     fi
     
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    if [ "$PREFLIGHT_DONE" -eq 1 ]; then
+        echo -e "${BOLD}Легенда:${NC} ❌ = профиль не поддерживается текущим адаптером/hostapd (см. Preflight, опция 4)"
+    fi
     echo
 }
 
@@ -206,6 +442,20 @@ run_ap() {
         conf=$(ls -1 "$CONFIGS_DIR"/*.conf | sed -n "${choice}p")
         profile=$(basename "$conf")
         ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
+    fi
+    
+    # Предупреждение, если профиль помечен как неподдерживаемый
+    local base_name="${profile%.conf}"
+    local run_unsupp
+    run_unsupp="$(profile_unsupported_reason "$base_name")"
+    if [ -n "$run_unsupp" ]; then
+        echo -e "${YELLOW}⚠ Профиль не поддерживается адаптером/hostapd (нет: $run_unsupp).${NC}"
+        echo -n "Всё равно запустить? (y/N): "
+        read -r ans
+        if [[ ! "$ans" =~ ^[Yy]$ ]]; then
+            return
+        fi
+        echo
     fi
     
     echo
@@ -258,10 +508,15 @@ generate_configs() {
     sleep 2
 }
 
-# Проверка системы
+# Проверка системы (Preflight + check-system.sh)
 check_system() {
     show_header
     echo -e "${BOLD}✅ Проверка системы${NC}"
+    echo
+    
+    preflight_check
+    preflight_print
+    echo -e "${BOLD}Доп. проверка (check-system.sh):${NC}"
     echo
     
     if [ -x "$SCRIPT_DIR/scripts/check-system.sh" ]; then
@@ -309,17 +564,12 @@ semi_auto_test() {
     read -p "Нажмите Enter для продолжения..."
 }
 
-# Обновление лабы (git pull + перегенерация)
+# Обновление лабы: автоматически очистка → pull → генерация
 update_lab() {
     show_header
     echo -e "${BOLD}🔄 Обновление лабы${NC}"
+    echo -e "Очистка → загрузка нового → генерация конфигов..."
     echo
-    echo "Шаги:"
-    echo "  1) удалить hostapd/generated (чтобы не мешали локальные файлы)"
-    echo "  2) git pull --ff-only"
-    echo "  3) сгенерировать конфиги"
-    echo
-    read -p "Нажмите Enter для запуска..."
 
     (
         cd "$SCRIPT_DIR" || exit 1
@@ -382,7 +632,7 @@ update_lab() {
 
     echo
     echo -e "${GREEN}✓ Обновление завершено!${NC}"
-    read -p "Нажмите Enter для продолжения..."
+    sleep 2
 }
 
 # Настройки
@@ -463,11 +713,23 @@ main() {
     done
 }
 
+# Запуск (Preflight перед меню)
+preflight_check
+show_header
+preflight_print
+if [ "$PREFLIGHT_ERRORS" -gt 0 ]; then
+    read -p "Продолжить несмотря на ошибки? (y/N): " -r ans
+    if [[ ! "$ans" =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+else
+    read -p "Нажмите Enter для продолжения..." -r _
+fi
+
 # Проверка: если запущен с параметром --quick, сразу показать конфиги и запустить
 if [ "$1" = "--quick" ]; then
     run_ap
     exit 0
 fi
 
-# Запуск
 main
