@@ -717,14 +717,8 @@ main() {
 preflight_check
 show_header
 preflight_print
-if [ "$PREFLIGHT_ERRORS" -gt 0 ]; then
-    read -p "Продолжить несмотря на ошибки? (y/N): " -r ans
-    if [[ ! "$ans" =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-else
-    read -p "Нажмите Enter для продолжения..." -r _
-fi
+echo -e "Нажмите ${BOLD}Enter${NC} для продолжения или ${BOLD}Ctrl+C${NC} для выхода."
+read -r _
 
 # Проверка: если запущен с параметром --quick, сразу показать конфиги и запустить
 if [ "$1" = "--quick" ]; then
