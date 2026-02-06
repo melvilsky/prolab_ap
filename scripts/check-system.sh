@@ -187,10 +187,13 @@ for script in "$PROJECT_ROOT/scripts/"*.sh; do
 done
 echo
 
-# Проверка возможностей адаптера
+# Проверка возможностей адаптера (iw list может выводить 2412.0 MHz / CCMP-128)
 echo -e "${BLUE}=== Проверка возможностей Wi-Fi адаптера ===${NC}"
 
-if iw list 2>/dev/null | grep -q "2412 MHz"; then
+IW_LIST=""
+[ -n "$IFACE" ] && IW_LIST=$(iw list 2>/dev/null) || true
+
+if echo "$IW_LIST" | grep -qE "2412(\.0)? MHz"; then
     echo -e "${GREEN}✓ Поддержка 2.4 GHz${NC}"
     ((SUCCESS++))
 else
@@ -198,7 +201,7 @@ else
     ((ERRORS++))
 fi
 
-if iw list 2>/dev/null | grep -q "5180 MHz"; then
+if echo "$IW_LIST" | grep -qE "5180(\.0)? MHz"; then
     echo -e "${GREEN}✓ Поддержка 5 GHz${NC}"
     ((SUCCESS++))
 else
@@ -206,7 +209,9 @@ else
     ((WARNINGS++))
 fi
 
-if iw list 2>/dev/null | grep "Cipher" | grep -q "CCMP"; then
+# Секция "Supported Ciphers:" выводит CCMP-128, GCMP-128, GCMP-256
+CIPHERS_SECTION=$(echo "$IW_LIST" | sed -n '/Supported Ciphers:/,/^[[:space:]]*$/p' | head -20)
+if echo "$CIPHERS_SECTION" | grep -q "CCMP-"; then
     echo -e "${GREEN}✓ CCMP cipher поддерживается${NC}"
     ((SUCCESS++))
 else
@@ -214,7 +219,7 @@ else
     ((ERRORS++))
 fi
 
-if iw list 2>/dev/null | grep "Cipher" | grep -q "GCMP"; then
+if echo "$CIPHERS_SECTION" | grep -q "GCMP-"; then
     echo -e "${GREEN}✓ GCMP cipher поддерживается${NC}"
     ((SUCCESS++))
 else

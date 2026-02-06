@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Generated configs must be self-contained (no include=).
 IFACE="${IFACE:-wlx001f0566a9c0}"
 OUT="${OUT:-$(dirname "$0")/../hostapd/generated}"
-COMMON="${COMMON:-$(dirname "$0")/../hostapd/common/radius.conf}"
 
 mkdir -p "$OUT"
 
@@ -317,6 +317,13 @@ ls -1 "$OUT"/*.conf | sort | while IFS= read -r conf; do
   printf "%02d\t%s\t%s\n" "$i" "$profile" "$ssid" >> "$INDEX_FILE"
   i=$((i + 1))
 done
+
+# Гарантия: в generated не должно быть include=
+bad=$(grep -l 'include=' "$OUT"/*.conf 2>/dev/null || true)
+if [ -n "$bad" ]; then
+  echo "ERROR: include= запрещён в generated. Найдено в: $bad" >&2
+  exit 1
+fi
 
 echo
 echo "DONE. Конфиги лежат в: $OUT"
