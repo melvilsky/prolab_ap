@@ -51,8 +51,9 @@ show_menu() {
     echo -e "  ${CYAN}4${NC}) ✅ Проверить систему"
     echo -e "  ${CYAN}5${NC}) 🧪 Автотест всех конфигов"
     echo -e "  ${CYAN}6${NC}) ⏭ Полуавто (Enter=следующий)"
-    echo -e "  ${CYAN}7${NC}) ⚙️  Настройки"
-    echo -e "  ${CYAN}8${NC}) 📚 Документация"
+    echo -e "  ${CYAN}7${NC}) 🔄 Обновить лабу (git pull + regen)"
+    echo -e "  ${CYAN}8${NC}) ⚙️  Настройки"
+    echo -e "  ${CYAN}9${NC}) 📚 Документация"
     echo -e "  ${CYAN}q${NC}) Выход"
     echo
     local index_file="$CONFIGS_DIR/index.tsv"
@@ -308,6 +309,30 @@ semi_auto_test() {
     read -p "Нажмите Enter для продолжения..."
 }
 
+# Обновление лабы (git pull + перегенерация)
+update_lab() {
+    show_header
+    echo -e "${BOLD}🔄 Обновление лабы${NC}"
+    echo
+    echo "Шаги:"
+    echo "  1) git pull --ff-only"
+    echo "  2) удалить hostapd/generated"
+    echo "  3) сгенерировать конфиги"
+    echo
+    read -p "Нажмите Enter для запуска..."
+
+    (
+        cd "$SCRIPT_DIR" || exit 1
+        git pull --ff-only
+        rm -rf hostapd/generated
+        ./scripts/gen-enterprise-variants.sh
+    )
+
+    echo
+    echo -e "${GREEN}✓ Обновление завершено!${NC}"
+    read -p "Нажмите Enter для продолжения..."
+}
+
 # Настройки
 settings_menu() {
     show_header
@@ -377,8 +402,9 @@ main() {
             4) check_system ;;
             5) auto_test ;;
             6) semi_auto_test ;;
-            7) settings_menu ;;
-            8) show_docs ;;
+            7) update_lab ;;
+            8) settings_menu ;;
+            9) show_docs ;;
             q|Q) echo -e "\n${GREEN}До свидания!${NC}"; exit 0 ;;
             *) echo -e "${RED}Неверный выбор${NC}"; sleep 1 ;;
         esac

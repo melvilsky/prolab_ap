@@ -206,8 +206,9 @@ _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 4) Проверка системы      - Диагностика
 5) Автотест              - Прогон всех по очереди
 6) Полуавто              - Enter для перехода к следующей сети
-7) Настройки             - Изменить Wi-Fi интерфейс
-8) Документация          - Открыть README
+7) Обновить лабу         - git pull + regen
+8) Настройки             - Изменить Wi-Fi интерфейс
+9) Документация          - Открыть README
 q) Выход
 ```
 
@@ -233,6 +234,12 @@ q) Выход
 ./scripts/test-all-configs-step.sh
 
 # Генерация конфигов заново
+./scripts/gen-enterprise-variants.sh
+
+# Обновить лабу (git pull + regen)
+cd ~/prolab_ap
+git pull --ff-only
+rm -rf hostapd/generated
 ./scripts/gen-enterprise-variants.sh
 ```
 
