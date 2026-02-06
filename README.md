@@ -230,7 +230,7 @@ q) Выход
 ./scripts/test-all-configs.sh 30
 
 # Полуавтотест (Enter для перехода)
-./scripts/test-all-configs-step.sh 30
+./scripts/test-all-configs-step.sh
 
 # Генерация конфигов заново
 ./scripts/gen-enterprise-variants.sh

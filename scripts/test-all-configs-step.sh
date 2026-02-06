@@ -3,7 +3,6 @@
 set -e
 
 CONFIGS_DIR="${CONFIGS_DIR:-$(dirname "$0")/../hostapd/generated}"
-DURATION="${1:-30}"  # Время работы каждой конфигурации в секундах
 LOG_DIR="${LOG_DIR:-$(dirname "$0")/../logs}"
 IFACE="${WIFI_IFACE:-wlx001f0566a9c0}"
 
@@ -19,7 +18,7 @@ echo -e "${BLUE}PRO LAB: Полуавтоматический тест${NC}"
 echo -e "${BLUE}=================================${NC}"
 echo
 echo "Директория конфигов: $CONFIGS_DIR"
-echo "Длительность теста каждого конфига: ${DURATION}s"
+echo "Режим: без ограничения по времени (переключение по Enter)"
 echo "Логи будут сохранены в: $LOG_DIR"
 echo "Интерфейс: $IFACE"
 echo
@@ -83,28 +82,38 @@ test_config() {
     # Отключить управление NetworkManager
     sudo nmcli dev set "$IFACE" managed no >/dev/null 2>&1 || true
     
-    # Запустить AP с таймаутом
-    echo -e "${GREEN}Запуск AP (${DURATION}s)...${NC}"
-    timeout ${DURATION}s sudo hostapd -dd "$conf" > "$logfile" 2>&1 || {
-        local exit_code=$?
-        if [ $exit_code -eq 124 ]; then
-            echo -e "${GREEN}✓ Тест завершен (timeout)${NC}"
-        else
-            echo -e "${RED}✗ Ошибка запуска (код: $exit_code)${NC}"
-            echo "Смотрите лог: $logfile"
+    # Запустить AP без ограничения по времени
+    echo -e "${GREEN}Запуск AP...${NC}"
+    sudo hostapd -dd "$conf" > "$logfile" 2>&1 &
+    local pid=$!
+    sleep 1
+    if ! kill -0 "$pid" 2>/dev/null; then
+        echo -e "${RED}✗ Ошибка запуска (hostapd не стартовал)${NC}"
+        echo "Смотрите лог: $logfile"
+        wait "$pid" 2>/dev/null || true
+        echo
+        return
+    fi
+
+    while true; do
+        read -p "Enter → следующий профиль, q → выход: " -r answer
+        if [ "$answer" = "q" ] || [ "$answer" = "Q" ]; then
+            sudo kill "$pid" 2>/dev/null || true
+            wait "$pid" 2>/dev/null || true
+            echo -e "${YELLOW}Остановлено пользователем.${NC}"
+            exit 0
         fi
-    }
-    echo
+        sudo kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+        echo -e "${GREEN}✓ Остановка текущего профиля${NC}"
+        echo
+        break
+    done
 }
 
 # Основной цикл
 index=1
 for conf in "${CONFIG_LIST[@]}"; do
-    read -p "Нажмите Enter для запуска следующего профиля (или q для выхода): " -r answer
-    if [ "$answer" = "q" ] || [ "$answer" = "Q" ]; then
-        echo -e "${YELLOW}Остановлено пользователем.${NC}"
-        break
-    fi
     test_config "$conf" "$index" "$TOTAL_CONFIGS"
     ((index++))
 done

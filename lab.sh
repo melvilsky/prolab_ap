@@ -298,16 +298,11 @@ semi_auto_test() {
     show_header
     echo -e "${BOLD}⏭ Полуавтоматическое тестирование${NC}"
     echo
-    echo -n "Длительность теста каждого конфига (секунды, по умолчанию 30): "
-    read duration
-    duration=${duration:-30}
-    
-    echo
     echo -e "${YELLOW}⚠ Убедитесь, что FreeRADIUS запущен!${NC}"
     echo
     read -p "Нажмите Enter для начала..."
     
-    "$SCRIPT_DIR/scripts/test-all-configs-step.sh" "$duration"
+    "$SCRIPT_DIR/scripts/test-all-configs-step.sh"
     
     echo
     read -p "Нажмите Enter для продолжения..."
