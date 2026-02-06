@@ -212,6 +212,9 @@ _Каждый вариант доступен для 2.4GHz (24) и 5GHz (5G)_
 q) Выход
 ```
 
+### Если `git pull` ругается на `untracked files would be overwritten`
+Это значит, что у вас локально остались файлы в `hostapd/generated/`, и Git не хочет их перезаписывать.\n\nРешение:\n\n```bash\ncd ~/prolab_ap\nrm -rf hostapd/generated\ngit pull --ff-only\n./scripts/gen-enterprise-variants.sh\n```
+
 **Номера профилей фиксированы.** При генерации создается `hostapd/generated/index.tsv`,
 и меню читает номера из него. После `gen-enterprise-variants.sh` номера всегда
 соответствуют одному и тому же SSID.
@@ -238,8 +241,8 @@ q) Выход
 
 # Обновить лабу (git pull + regen)
 cd ~/prolab_ap
-git pull --ff-only
 rm -rf hostapd/generated
+git pull --ff-only
 ./scripts/gen-enterprise-variants.sh
 ```
 

@@ -315,17 +315,69 @@ update_lab() {
     echo -e "${BOLD}🔄 Обновление лабы${NC}"
     echo
     echo "Шаги:"
-    echo "  1) git pull --ff-only"
-    echo "  2) удалить hostapd/generated"
+    echo "  1) удалить hostapd/generated (чтобы не мешали локальные файлы)"
+    echo "  2) git pull --ff-only"
     echo "  3) сгенерировать конфиги"
     echo
     read -p "Нажмите Enter для запуска..."
 
     (
         cd "$SCRIPT_DIR" || exit 1
-        git pull --ff-only
-        rm -rf hostapd/generated
-        ./scripts/gen-enterprise-variants.sh
+
+        if ! command -v git >/dev/null 2>&1; then
+            echo -e "${RED}✗ git не установлен${NC}"
+            echo "Установите git и повторите."
+            exit 1
+        fi
+
+        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            echo -e "${RED}✗ Текущая папка не является git-репозиторием${NC}"
+            echo "Проверьте, что вы запускаете lab.sh из клонированного репозитория."
+            exit 1
+        fi
+
+        echo -e "${BLUE}→ Очистка hostapd/generated...${NC}"
+        if [ -e "hostapd/generated" ]; then
+            rm -rf "hostapd/generated" 2>/dev/null || true
+        fi
+        if [ -e "hostapd/generated" ]; then
+            echo -e "${RED}✗ Не удалось удалить hostapd/generated${NC}"
+            echo "Скорее всего, папка/файлы принадлежат root."
+            echo "Исправление:"
+            echo "  sudo chown -R $USER:$USER hostapd/generated"
+            echo "  rm -rf hostapd/generated"
+            exit 1
+        fi
+
+        echo -e "${BLUE}→ git pull --ff-only...${NC}"
+        if ! git pull --ff-only; then
+            echo -e "${RED}✗ Не удалось выполнить git pull --ff-only${NC}"
+            echo "Возможные причины:"
+            echo "  - есть локальные изменения (git status)"
+            echo "  - ветка расходится с origin/main"
+            echo
+            echo "Безопасные варианты:"
+            echo "  git status"
+            echo "  git stash -u"
+            echo "  git pull --ff-only"
+            echo
+            echo "Жёсткий вариант (удалит локальные правки):"
+            echo "  git reset --hard origin/main"
+            exit 1
+        fi
+
+        echo -e "${BLUE}→ Генерация конфигов...${NC}"
+        if ! ./scripts/gen-enterprise-variants.sh; then
+            echo -e "${RED}✗ Ошибка генерации конфигов${NC}"
+            exit 1
+        fi
+
+        count=$(ls -1 hostapd/generated/*.conf 2>/dev/null | wc -l | tr -d ' ')
+        if [ -f "hostapd/generated/index.tsv" ]; then
+            echo -e "${GREEN}✓ Готово: ${count} конфигов, index.tsv OK${NC}"
+        else
+            echo -e "${YELLOW}⚠ Готово: ${count} конфигов, но index.tsv не найден${NC}"
+        fi
     )
 
     echo
