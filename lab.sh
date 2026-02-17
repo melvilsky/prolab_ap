@@ -613,18 +613,20 @@ update_lab() {
             exit 1
         fi
 
-        echo -e "${BLUE}→ Очистка hostapd/generated...${NC}"
-        if [ -e "hostapd/generated" ]; then
-            rm -rf "hostapd/generated" 2>/dev/null || true
-        fi
-        if [ -e "hostapd/generated" ]; then
-            echo -e "${RED}✗ Не удалось удалить hostapd/generated${NC}"
-            echo "Скорее всего, папка/файлы принадлежат root."
-            echo "Исправление:"
-            echo "  sudo chown -R $USER:$USER hostapd/generated"
-            echo "  rm -rf hostapd/generated"
-            exit 1
-        fi
+        echo -e "${BLUE}→ Очистка hostapd/generated и hostapd/channel-widths...${NC}"
+        for dir in "hostapd/generated" "hostapd/channel-widths"; do
+            if [ -e "$dir" ]; then
+                rm -rf "$dir" 2>/dev/null || true
+            fi
+            if [ -e "$dir" ]; then
+                echo -e "${RED}✗ Не удалось удалить $dir${NC}"
+                echo "Скорее всего, папка/файлы принадлежат root."
+                echo "Исправление:"
+                echo "  sudo chown -R $USER:$USER $dir"
+                echo "  rm -rf $dir"
+                exit 1
+            fi
+        done
 
         echo -e "${BLUE}→ git pull --ff-only...${NC}"
         if ! git pull --ff-only; then
@@ -649,11 +651,12 @@ update_lab() {
             exit 1
         fi
 
-        count=$(ls -1 hostapd/generated/*.conf 2>/dev/null | wc -l | tr -d ' ')
+        count_gen=$(ls -1 hostapd/generated/*.conf 2>/dev/null | wc -l | tr -d ' ')
+        count_widths=$(ls -1 hostapd/channel-widths/*.conf 2>/dev/null | wc -l | tr -d ' ')
         if [ -f "hostapd/generated/index.tsv" ]; then
-            echo -e "${GREEN}✓ Готово: ${count} конфигов, index.tsv OK${NC}"
+            echo -e "${GREEN}✓ Готово: ${count_gen} конфигов безопасности, ${count_widths} конфигов ширины каналов${NC}"
         else
-            echo -e "${YELLOW}⚠ Готово: ${count} конфигов, но index.tsv не найден${NC}"
+            echo -e "${YELLOW}⚠ Готово: ${count_gen} конфигов безопасности, ${count_widths} конфигов ширины каналов, но index.tsv не найден${NC}"
         fi
     )
 
