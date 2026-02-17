@@ -15,7 +15,12 @@ NC='\033[0m'
 
 # Пути
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIGS_DIR="$SCRIPT_DIR/hostapd/generated"
+CONFIG_MODE="${CONFIG_MODE:-security}"  # security или channel-widths
+if [ "$CONFIG_MODE" = "channel-widths" ]; then
+    CONFIGS_DIR="$SCRIPT_DIR/hostapd/channel-widths"
+else
+    CONFIGS_DIR="$SCRIPT_DIR/hostapd/generated"
+fi
 
 # Конфигурация (автодетект интерфейса)
 detect_wifi_interface() {
@@ -226,6 +231,11 @@ show_header() {
     echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
     echo
     echo -e "📡 Wi-Fi интерфейс: ${GREEN}$WIFI_IFACE${NC}"
+    if [ "$CONFIG_MODE" = "channel-widths" ]; then
+        echo -e "📁 Режим: ${CYAN}Ширина каналов${NC} (${YELLOW}hostapd/channel-widths${NC})"
+    else
+        echo -e "📁 Режим: ${CYAN}Безопасность${NC} (${YELLOW}hostapd/generated${NC})"
+    fi
     echo
     if [ "$PREFLIGHT_DONE" -eq 1 ]; then
         if [ "$PREFLIGHT_ERRORS" -gt 0 ]; then
@@ -355,7 +365,7 @@ show_configs() {
         done < "$index_file"
     else
         local i=1
-        for conf in "$CONFIGS_DIR"/*.conf; do
+        for conf in $(ls -1 "$CONFIGS_DIR"/*.conf | sort); do
             local basename=$(basename "$conf" .conf)
             local ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
         
@@ -389,6 +399,21 @@ show_configs() {
             
             if [[ "$basename" =~ "TKIP" ]]; then
                 params="$params ${RED}TKIP${NC}"
+            fi
+            
+            # Ширина канала (для channel-widths)
+            if [[ "$basename" =~ "-20M-" ]]; then
+                params="$params ${CYAN}20MHz${NC}"
+            elif [[ "$basename" =~ "-40M-" ]]; then
+                params="$params ${CYAN}40MHz${NC}"
+            elif [[ "$basename" =~ "-80M-" ]]; then
+                params="$params ${CYAN}80MHz${NC}"
+            elif [[ "$basename" =~ "-80p80M-" ]]; then
+                params="$params ${CYAN}80+80MHz${NC}"
+            elif [[ "$basename" =~ "-160M-" ]]; then
+                params="$params ${CYAN}160MHz${NC}"
+            elif [[ "$basename" =~ "-320M-" ]]; then
+                params="$params ${CYAN}320MHz${NC}"
             fi
             
             unsupp="$(profile_unsupported_reason "$basename")"
@@ -435,11 +460,13 @@ run_ap() {
     local ssid=""
     local index_file="$CONFIGS_DIR/index.tsv"
     if [ -f "$index_file" ]; then
+        # Используем index.tsv для стабильной нумерации (generated)
         profile=$(awk -v n="$choice" -F'\t' 'NR==n {print $2; exit}' "$index_file")
         ssid=$(awk -v n="$choice" -F'\t' 'NR==n {print $3; exit}' "$index_file")
         conf="$CONFIGS_DIR/$profile"
     else
-        conf=$(ls -1 "$CONFIGS_DIR"/*.conf | sed -n "${choice}p")
+        # Для channel-widths просто сортируем файлы
+        conf=$(ls -1 "$CONFIGS_DIR"/*.conf | sort | sed -n "${choice}p")
         profile=$(basename "$conf")
         ssid=$(grep "^ssid=" "$conf" | cut -d= -f2)
     fi
@@ -641,7 +668,14 @@ settings_menu() {
     echo -e "${BOLD}⚙️  Настройки${NC}"
     echo
     echo "1) Изменить Wi-Fi интерфейс (текущий: ${GREEN}$WIFI_IFACE${NC})"
-    echo "2) Назад"
+    echo "2) Выбрать папку конфигов"
+    echo "   Текущая: ${CYAN}$CONFIG_MODE${NC}"
+    if [ "$CONFIG_MODE" = "security" ]; then
+        echo "   (${YELLOW}hostapd/generated${NC} — базовые конфиги безопасности)"
+    else
+        echo "   (${YELLOW}hostapd/channel-widths${NC} — тестирование ширины каналов)"
+    fi
+    echo "3) Назад"
     echo
     echo -n "Выберите: "
     read choice
@@ -659,6 +693,26 @@ settings_menu() {
                 echo -e "${GREEN}✓ Интерфейс изменен на: $new_iface${NC}"
                 echo "Не забудьте перегенерировать конфиги!"
                 sleep 3
+            fi
+            ;;
+        2)
+            echo
+            echo "Выберите папку конфигов:"
+            echo "  1) Безопасность (hostapd/generated) — 42 базовых конфига"
+            echo "  2) Ширина каналов (hostapd/channel-widths) — 8 конфигов"
+            echo
+            echo -n "Выберите (1 или 2): "
+            read folder_choice
+            if [ "$folder_choice" = "1" ]; then
+                export CONFIG_MODE="security"
+                CONFIGS_DIR="$SCRIPT_DIR/hostapd/generated"
+                echo -e "${GREEN}✓ Переключено на: Безопасность${NC}"
+                sleep 2
+            elif [ "$folder_choice" = "2" ]; then
+                export CONFIG_MODE="channel-widths"
+                CONFIGS_DIR="$SCRIPT_DIR/hostapd/channel-widths"
+                echo -e "${GREEN}✓ Переключено на: Ширина каналов${NC}"
+                sleep 2
             fi
             ;;
     esac
