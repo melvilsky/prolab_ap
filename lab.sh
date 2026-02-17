@@ -674,13 +674,13 @@ settings_menu() {
     show_header
     echo -e "${BOLD}⚙️  Настройки${NC}"
     echo
-    echo "1) Изменить Wi-Fi интерфейс (текущий: ${GREEN}$WIFI_IFACE${NC})"
+    echo "1) Изменить Wi-Fi интерфейс (текущий: $WIFI_IFACE)"
     echo "2) Выбрать папку конфигов"
-    echo "   Текущая: ${CYAN}$CONFIG_MODE${NC}"
+    echo "   Текущая: $CONFIG_MODE"
     if [ "$CONFIG_MODE" = "security" ]; then
-        echo "   (${YELLOW}hostapd/generated${NC} — базовые конфиги безопасности)"
+        echo "   (hostapd/generated — базовые конфиги безопасности)"
     else
-        echo "   (${YELLOW}hostapd/channel-widths${NC} — тестирование ширины каналов)"
+        echo "   (hostapd/channel-widths — тестирование ширины каналов)"
     fi
     echo "3) Назад"
     echo
@@ -697,7 +697,7 @@ settings_menu() {
             read new_iface
             if [ -n "$new_iface" ]; then
                 export WIFI_IFACE="$new_iface"
-                echo -e "${GREEN}✓ Интерфейс изменен на: $new_iface${NC}"
+                echo "✓ Интерфейс изменен на: $new_iface"
                 echo "Не забудьте перегенерировать конфиги!"
                 sleep 3
             fi
@@ -713,12 +713,12 @@ settings_menu() {
             if [ "$folder_choice" = "1" ]; then
                 export CONFIG_MODE="security"
                 CONFIGS_DIR="$SCRIPT_DIR/hostapd/generated"
-                echo -e "${GREEN}✓ Переключено на: Безопасность${NC}"
+                echo "✓ Переключено на: Безопасность"
                 sleep 2
             elif [ "$folder_choice" = "2" ]; then
                 export CONFIG_MODE="channel-widths"
                 CONFIGS_DIR="$SCRIPT_DIR/hostapd/channel-widths"
-                echo -e "${GREEN}✓ Переключено на: Ширина каналов${NC}"
+                echo "✓ Переключено на: Ширина каналов"
                 sleep 2
             fi
             ;;
